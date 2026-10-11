@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="copyright" content="© 2026 Sumi English. All rights reserved.">
+  <meta name="author" content="Sumi English">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf9f4">
+  <meta name="description" content="Sumi English – học tiếng Anh giao tiếp cho người mất gốc, học hoàn toàn qua câu hội thoại như em bé tập nói. A1 đến C2, mỗi cấp hơn 1.000 từ, chấm phát âm và ôn tập ngắt quãng.">
+  <title>Sumi English</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="data/levels.js" defer></script>
+  <script src="data/a1-1.js" defer></script>
+  <script src="data/a1-2.js" defer></script>
+  <script src="data/a1-3.js" defer></script>
+  <script src="data/a1-4.js" defer></script>
+  <script src="data/a1-5.js" defer></script>
+  <script src="data/a1-6.js" defer></script>
+  <script src="data/a2-1.js" defer></script>
+  <script src="data/a2-2.js" defer></script>
+  <script src="data/a2-3.js" defer></script>
+  <script src="data/a2-4.js" defer></script>
+  <script src="data/a2-5.js" defer></script>
+  <script src="data/b1-1.js" defer></script>
+  <script src="data/b1-2.js" defer></script>
+  <script src="data/b1-3.js" defer></script>
+  <script src="data/b1-4.js" defer></script>
+  <script src="data/b2-1.js" defer></script>
+  <script src="data/b2-2.js" defer></script>
+  <script src="data/b2-3.js" defer></script>
+  <script src="data/c1-1.js" defer></script>
+  <script src="data/c1-2.js" defer></script>
+  <script src="data/c1-3.js" defer></script>
+  <script src="data/c2-1.js" defer></script>
+  <script src="data/c2-2.js" defer></script>
+  <script src="data/c2-3.js" defer></script>
+  <script src="data/stats.js" defer></script>
+  <script src="data/sounds.js" defer></script>
+  <script src="data/vocab-1.js" defer></script>
+  <script src="data/vocab-2.js" defer></script>
+  <script src="hiyo.js" defer></script>
+  <script src="speech.js" defer></script>
+  <script src="store.js" defer></script>
+  <script src="firebase-config.js" defer></script>
+  <script src="cloud.js" defer></script>
+  <script src="vocab.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="top-in">
+      <a href="#/" class="brand" aria-label="Sumi English – Trang chủ">
+        <span class="brand-hiyo" id="brand-hiyo"></span>
+        <span class="brand-txt"><b>Sumi English</b><small>Học giao tiếp qua câu, như em bé tập nói</small></span>
+      </a>
+      <div class="top-stats">
+        <span class="pill fire" id="st-streak" title="Chuỗi ngày học">0 ngày</span>
+        <span class="pill xp" id="st-xp" title="Điểm kinh nghiệm">0 XP</span>
+        <a class="pill acc" id="st-acc" href="#/account" hidden>Đăng nhập</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="wrap"></main>
+
+  <nav class="tabs" aria-label="Điều hướng">
+    <a href="#/" data-tab="home">Học</a>
+    <a href="#/vocab" data-tab="vocab">Từ vựng</a>
+    <a href="#/review" data-tab="review">Ôn tập<b class="badge" id="tab-due" hidden></b></a>
+    <a href="#/sounds" data-tab="sounds">Phát âm</a>
+    <a href="#/guide" data-tab="guide">Cách học</a>
+  </nav>
+  <div class="toast" id="toast"></div>
+</body>
+</html>
