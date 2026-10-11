@@ -36,7 +36,7 @@ Vào **Build → Authentication → Get started → Sign-in method**:
 
 ### 3. Tạo Realtime Database
 1. **Build → Realtime Database → Create database**, chọn vùng **asia-southeast1 (Singapore)**, chế độ **Locked mode**.
-2. Thẻ **Rules**, dán luật sau rồi **Publish**. Với luật này, mỗi người chỉ đọc và ghi được dữ liệu của chính mình:
+2. Thẻ **Rules**, dán luật sau rồi **Publish**. Mỗi người chỉ đọc và ghi được tiến độ của chính mình; mục `feedback` là góp ý dạng bình luận: ai cũng đọc được, người đã đăng nhập mới viết được, và chỉ xoá được góp ý của chính mình:
 
 ```json
 {
@@ -45,6 +45,17 @@ Vào **Build → Authentication → Get started → Sign-in method**:
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "feedback": {
+      "$site": {
+        ".read": true,
+        "$item": {
+          "$cid": {
+            ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && !newData.exists() && data.child('uid').val() === auth.uid))",
+            ".validate": "newData.hasChildren(['uid', 'msg', 's', 'at']) && newData.child('msg').isString() && newData.child('msg').val().length > 0 && newData.child('msg').val().length <= 500 && newData.child('s').isString() && newData.child('s').val().length <= 400 && newData.child('at').val() <= now"
+          }
+        }
       }
     }
   }

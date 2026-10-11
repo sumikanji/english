@@ -18,8 +18,8 @@ const add = (role, text, extra) => { if (!text) return; role = role === 'B' ? 'B
 (ctx.SE_VOCAB_TOPICS || []).forEach(t => (t.w || []).forEach(w => { add('A', t.kind === 'num' ? w[1] : w[0]); add('A', w[2]); }));
 Object.values(LETTER_NAME).forEach(n => add('A', n));
 SPELL.forEach(w => add('A', w));
-vm.runInContext(fs.readFileSync(path.join(R, 'scenes.js'), 'utf8'), ctx);
-(ctx.SEScenes ? ctx.SEScenes.SCENES : []).forEach(s => s.items.forEach(it => add('A', it.en)));
+(ctx.SE_SHADOW || []).forEach(x => x.s.forEach(s => add('A', s[0])));
+(ctx.SE_QA || []).forEach(q => { add('A', q.q); add('B', q.a); });
 ['This is my speaking speed.', 'Hello! This is how I sound.', 'Hello! Nice to meet you. How are you today?', "Hello! I'm your female voice.", "Hello! I'm your male voice."].forEach(t => add('A', t));
 process.stdout.write(out.map(o => JSON.stringify(o)).join('\n') + '\n');
 console.error(out.length + ' câu');

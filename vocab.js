@@ -28,7 +28,6 @@
   // ================= Danh sách chủ đề =================
   function viewList(app) {
     app.innerHTML = '<section class="card panel pop"><div class="panel-h"><h2>Từ vựng theo chủ đề</h2><p>Bảng chữ cái, chữ số, ngày giờ và ' + (T().length - 3) + ' chủ đề đời thường. Mỗi từ đi kèm một câu ví dụ để bạn biết cách dùng. Học xong thì luyện nghe, viết và nói.</p></div></section>' +
-      (window.SEScenes ? window.SEScenes.cardsHtml() + '<h2 class="sec">Học theo chủ đề</h2>' : '') +
       '<div class="voc-grid">' + T().map((t, i) => {
         const done = (MODES[t.kind] || MODES.word).slice(1).map(m => best(t.id, m[0])).filter(v => v != null);
         return '<a class="card voc-card" href="#/vocab/' + t.id + '"><span class="num">' + (i + 1) + '</span><b>' + esc(t.t) + '</b><small class="en">' + esc(t.en) + '</small><small class="muted">' + t.w.length + (t.kind === 'abc' ? ' chữ cái' : t.kind === 'num' ? ' số' : ' từ') + (done.length ? ' · cao nhất ' + Math.max(...done) + '/' + QN : '') + '</small></a>';
