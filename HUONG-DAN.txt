@@ -46,8 +46,23 @@ TỪ VỰNG THEO CHỦ ĐỀ (tab "Từ vựng")
     Các chủ đề khác: nghe chọn nghĩa · nghe và viết từ · nhìn nghĩa nói từ (chấm phát âm)
   Thêm chủ đề: mở data/vocab-2.js, chép một khối VT(...) và sửa (từ|nghĩa|câu ví dụ|nghĩa câu).
 
+KHÁM PHÁ BẰNG HÌNH (đầu tab "Từ vựng")
+  11 cảnh 2.5D: nhà bếp, phòng tắm, phòng khách, phòng ngủ, lớp học, khu rừng, nông trại,
+  dưới biển, đường phố, chợ rau quả, công viên – khoảng 160 đồ vật và con vật.
+  Khám phá: chạm vào đồ vật → sáng lên, hiện tên tiếng Anh + nghĩa, đọc to.
+  Tìm đồ vật: nghe tên rồi chạm đúng đồ vật trong hình (10 câu, lưu điểm cao nhất).
+
 GIỌNG ĐỌC
-  Chỉ dùng giọng nữ. Mục Cách học → Giọng đọc để chọn giọng nữ khác có trong máy.
+  Mọi câu cố định có giọng AI thu sẵn trong thư mục audio/ (audio/f giọng nữ, audio/m giọng nam).
+  Chọn ở tab Cách học hoặc bước 1 của bài: Nữ · Nam · Nam – Nữ (người nói chuyện giọng nam, bạn giọng nữ).
+  Giọng AI tạo bằng Kokoro (mã nguồn mở, giấy phép Apache 2.0, dùng miễn phí).
+  Câu sinh ngẫu nhiên (số, giờ, ngày tháng trong bài luyện) dùng giọng có sẵn trong máy.
+  Thêm bài thì tạo thêm giọng: node tools/audio_items.js > tools/audio_items.jsonl
+    rồi python3 tools/gen_audio.py . en kokoro-v1.0.onnx voices-v1.0.bin (câu đã có sẽ bỏ qua).
+
+ĐƯA LÊN GITHUB
+  Thư mục audio/ có hàng nghìn file, nên dùng GitHub Desktop: Clone repo "english" → chép toàn bộ
+  thư mục này vào (ghi đè) → Commit to main → Push origin.
 
 CẤU TRÚC
   index.html, style.css, app.js     – giao diện và các màn hình

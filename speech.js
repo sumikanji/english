@@ -35,11 +35,13 @@
   }
 
   // speak(text, {who:'A'|'B', slow}) → Promise khi đọc xong
-  function speak(text, o) {
+  function speakTTS(text, o) {
     o = o || {};
     if (!synth) return Promise.resolve();
     const my = ++token;
-    synth.cancel();
+    const busy = synth.speaking || synth.pending;
+    if (busy) synth.cancel();
+    if (synth.paused) synth.resume();
     return new Promise(res => {
       const u = new SpeechSynthesisUtterance(text.replace(/…/g, '...'));
       u.lang = 'en-US';
@@ -51,11 +53,66 @@
       const fin = () => { if (done) return; done = true; clearTimeout(tm); res(my === token); };
       u.onend = fin; u.onerror = fin;
       const tm = setTimeout(fin, 1500 + text.length * 130 / u.rate);
-      // Chrome đôi khi "kẹt" nếu gọi ngay sau cancel()
-      setTimeout(() => synth.speak(u), 30);
+      // iPhone/iPad: phải gọi speak() ngay trong lần chạm của người dùng, không được trì hoãn.
+      // Chỉ trì hoãn một chút khi vừa huỷ câu đang đọc (Chrome đôi khi "kẹt" nếu đọc ngay sau cancel()).
+      if (busy) setTimeout(() => synth.speak(u), 60); else synth.speak(u);
     });
   }
-  function stop() { token++; if (synth) synth.cancel(); }
+
+  // ---------- Giọng AI thu sẵn (mp3) ----------
+  // Mỗi câu cố định có 2 file: audio/f/<mã>.mp3 (giọng nữ) và audio/m/<mã>.mp3 (giọng nam).
+  // Mã = băm(vai + '|' + câu). Danh sách mã có file nằm trong data/audio.js. Không có file → dùng giọng của máy.
+  function hashKey(s) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  const AKEYS = new Set(String(window.SE_AUDIO || '').split(' ').filter(Boolean));
+  const keyOf = (who, text) => hashKey((who === 'B' ? 'B' : 'A') + '|' + String(text));
+  let mode = 'f';                 // 'f' nữ · 'm' nam · 'mix' người nói nam, người học nữ
+  const genderFor = who => mode === 'mix' ? (who === 'B' ? 'f' : 'm') : mode;
+  let audioEl = null;
+  function player() {
+    if (!audioEl) { audioEl = new Audio(); audioEl.preload = 'auto'; }
+    return audioEl;
+  }
+  function speak(text, o) {
+    o = o || {};
+    const key = keyOf(o.who, text);
+    if (!AKEYS.has(key)) return speakTTS(text, o);
+    const my = ++token;
+    if (synth && (synth.speaking || synth.pending)) synth.cancel();
+    const a = player();
+    return new Promise(res => {
+      let done = false;
+      const fin = ok => { if (done) return; done = true; clearTimeout(tm); a.onended = a.onerror = null; res(ok && my === token); };
+      a.onended = () => fin(true);
+      a.onerror = () => { if (done) return; done = true; clearTimeout(tm); a.onended = a.onerror = null; if (my === token) speakTTS(text, o).then(res); else res(false); };
+      const tm = setTimeout(() => fin(true), 4000 + String(text).length * 400);
+      a.src = 'audio/' + genderFor(o.who) + '/' + key + '.mp3';
+      const r = o.slow ? 0.72 : (o.rate || rate) / 0.95;
+      a.playbackRate = Math.max(0.5, Math.min(1.6, r));
+      try { a.preservesPitch = true; a.webkitPreservesPitch = true; } catch (e) { }
+      const p = a.play();
+      if (p && p.catch) p.catch(() => { if (!done) { done = true; clearTimeout(tm); if (my === token) speakTTS(text, o).then(res); else res(false); } });
+    });
+  }
+  function unlockAudio() { try { const a = player(); a.muted = true; a.src = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//OEwAAAAAAAAAAAAEluZm8AAAAPAAAABwAAA2AAVVVVVVVVVVVVVVVVVVVxcXFxcXFxcXFxcXFxcY6Ojo6Ojo6Ojo6Ojo6Oqqqqqqqqqqqqqqqqqqqqx8fHx8fHx8fHx8fHx8fj4+Pj4+Pj4+Pj4+Pj4///////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQEIAAAAAAAAANgmVBi7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//NExAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExFMAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKYAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'; const p = a.play(); if (p && p.then) p.then(() => { a.pause(); a.muted = false; }).catch(() => { a.muted = false; }); } catch (e) { } }
+  function stop() { token++; if (audioEl) { try { audioEl.pause(); } catch (e) { } } if (synth && (synth.speaking || synth.pending)) synth.cancel(); }
+  // "Mở khoá" âm thanh ở lần chạm đầu tiên (iOS/Android chặn phát tiếng khi chưa có thao tác của người dùng)
+  let unlocked = false;
+  function unlock() {
+    if (unlocked || !synth) return;
+    unlocked = true;
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'en-US'; synth.speak(u); } catch (e) { }
+    loadVoices();
+    unlockAudio();
+  }
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, { capture: true, passive: true }));
+  // Chrome Android/desktop: đọc lâu có thể bị treo ở trạng thái "paused" — đánh thức định kỳ
+  if (synth) setInterval(() => { if (synth.speaking && synth.paused) synth.resume(); }, 1000);
 
   // ---------- Chuẩn hoá câu để so khớp ----------
   const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
@@ -193,7 +250,7 @@
     speak, stop, listen, stopListening, canListen, compare, markWords, norm,
     canSpeak: () => !!synth,
     setRate: r => { rate = r; }, getRate: () => rate,
-    setGender: () => { }, getGender: () => gender,
+    setGender: g => { mode = g === 'm' || g === 'mix' ? g : 'f'; }, getGender: () => mode, hasAudio: (t, who) => AKEYS.has(keyOf(who, t)), keyOf, audioCount: () => AKEYS.size,
     setVoice: n => { voiceName = n || ''; }, getVoice: () => voiceName,
     voiceList: () => voices.map(v => ({ name: v.name, lang: v.lang, g: genderOf(v) })),
     onVoices: f => listeners.push(f)

@@ -39,6 +39,7 @@
   function beep(ok) {
     try {
       AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
       const t = AC.currentTime;
       (ok ? [660, 880, 1175] : [300, 220]).forEach((f, i) => {
         const o = AC.createOscillator(), g = AC.createGain();
@@ -77,7 +78,7 @@
     SP.stop(); SP.stopListening();
     if (cleanup) { cleanup(); cleanup = null; }
     const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean);
-    const tab = { review: 'review', sounds: 'sounds', sound: 'sounds', guide: 'guide', vocab: 'vocab' }[parts[0]] || 'home';
+    const tab = { review: 'review', sounds: 'sounds', sound: 'sounds', guide: 'guide', vocab: 'vocab', scene: 'vocab' }[parts[0]] || 'home';
     $$('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
     refreshTop();
     window.scrollTo(0, 0);
@@ -88,6 +89,7 @@
     if (parts[0] === 'sound' && parts[1]) return viewSound(parts[1]);
     if (parts[0] === 'guide') return viewGuide();
     if (parts[0] === 'account') return viewAccount();
+    if (parts[0] === 'scene' && window.SEScenes) return window.SEScenes.view(app, parts[1], parts[2]);
     if (parts[0] === 'vocab' && window.SEVocab) return window.SEVocab.view(app, parts[1], parts[2]);
     viewHome();
   }
@@ -143,13 +145,14 @@
   // Chọn giọng đọc nam / nữ (dùng chung)
   function voiceChips(cls) {
     const g = SP.getGender();
-    return '<span class="seg ' + (cls || '') + '" role="group" aria-label="Giọng đọc"><span class="seg-l">Giọng</span><button class="seg-b' + (g === 'f' ? ' on' : '') + '" data-g="f">Nữ</button><button class="seg-b' + (g === 'm' ? ' on' : '') + '" data-g="m">Nam</button></span>';
+    return '<span class="seg ' + (cls || '') + '" role="group" aria-label="Giọng đọc"><span class="seg-l">Giọng</span>' +
+      [['f', 'Nữ'], ['m', 'Nam'], ['mix', 'Nam – Nữ']].map(x => '<button class="seg-b' + (g === x[0] ? ' on' : '') + '" data-g="' + x[0] + '">' + x[1] + '</button>').join('') + '</span>';
   }
   function bindVoice(root, after) {
     $$('.seg-b[data-g]', root).forEach(b => b.onclick = () => {
-      SP.setGender(b.dataset.g); ST.cfg('gender', b.dataset.g); ST.cfg('voice', '');
-      $$('.seg-b[data-g]', root).forEach(x => x.classList.toggle('on', x === b));
-      SP.speak(b.dataset.g === 'm' ? 'Hello, I will be your male voice.' : 'Hello, I will be your female voice.');
+      SP.setGender(b.dataset.g); ST.cfg('gender', b.dataset.g);
+      $$('.seg-b[data-g]', root).forEach(x => x.classList.toggle('on', x.dataset.g === b.dataset.g));
+      SP.speak(b.dataset.g === 'f' ? "Hello! I'm your female voice." : "Hello! I'm your male voice.", { who: b.dataset.g === 'mix' ? 'A' : 'A' });
       after && after();
     });
   }
@@ -201,10 +204,12 @@
       '<div class="scene">' + esc(l.s) + '</div>' +
       '<div class="toolbar"><button class="chip play" id="play">Phát cả bài</button><button class="chip" id="slow">Đọc chậm</button>' +
       '<button class="chip' + (hideEn ? '' : ' on') + '" id="ten">Hiện chữ tiếng Anh</button><button class="chip' + (hideVi ? '' : ' on') + '" id="tvi">Hiện nghĩa</button></div>' +
+      '<div class="voice-row">' + voiceChips() + '</div>' +
       '<div class="chat' + (hideEn ? ' hide-en' : '') + (hideVi ? ' hide-vi' : '') + '" id="chat">' + l.d.map((d, i) => msgHtml(l, d, i)).join('') + '</div>' +
       '<div class="tip">Trẻ em nghe hàng nghìn giờ trước khi nói. Hãy bật lại hội thoại này nhiều lần trong ngày, kể cả khi đang làm việc khác.</div>' +
       '<div class="next-bar"><button class="btn primary" id="nx">Tiếp: Ghép câu →</button></div>';
     const chat = $('#chat', P);
+    bindVoice(P);
     let slow = false, run = 0, plays = 0;
     $('#slow', P).onclick = e => { slow = !slow; e.currentTarget.classList.toggle('on', slow); };
     $('#ten', P).onclick = e => { const on = chat.classList.toggle('hide-en'); e.currentTarget.classList.toggle('on', !on); ST.cfg('hideEn', on); };
@@ -584,7 +589,7 @@
       '<div class="card"><h2>5. Ôn đúng lúc sắp quên</h2><p>Mọi câu đã học vào hộp ôn tập ngắt quãng. Mỗi lần ôn, bạn ghép lại câu hoặc nói lại câu từ nghĩa tiếng Việt. Nhớ đúng thì lần sau cách xa hơn (1 → 2 → 4 → 7 → 14 → 30 ngày…), quên thì quay lại gần đầu.</p></div>' +
       '<div class="card"><h2>Gợi ý lịch học mỗi ngày (20–30 phút)</h2><ul><li>10 phút: ôn câu trong mục <b>Ôn tập</b>.</li><li>15 phút: học 1 bài mới đủ 4 bước.</li><li>5 phút: luyện 1 nhóm âm trong mục <b>Phát âm</b>.</li><li>Lúc rảnh: bật lại hội thoại của bài hôm qua để nghe thụ động.</li></ul></div>' +
       '<div class="card"><h2>Về micro và giọng đọc</h2><ul><li>Chấm phát âm dùng tính năng nhận dạng giọng nói có sẵn của trình duyệt: Chrome, Edge (máy tính, Android) hoặc Safari (iPhone, iPad). Firefox chưa hỗ trợ.</li><li>Lần đầu bấm Nói, hãy chọn <b>Cho phép</b> dùng micro. Trang cần chạy qua https.</li><li>Giọng đọc lấy từ máy của bạn. Trên iPhone có thể tải giọng "Nâng cao" trong Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói để nghe hay hơn.</li></ul></div>' +
-      '<div class="card"><h2>Giọng đọc</h2><div class="row"><select id="vsel" class="sel"></select><button class="btn small" id="vtest">Nghe thử</button></div><p class="muted" style="font-size:.82rem;margin-top:8px">Sumi dùng giọng nữ tiếng Anh rõ nhất có trong máy của bạn. Bạn có thể chọn giọng khác trong danh sách.</p></div>' +
+      '<div class="card"><h2>Giọng đọc</h2><div class="row" id="vmode">' + voiceChips() + '</div><p class="muted" style="font-size:.82rem;margin:8px 0 12px">Các câu bài học, từ vựng và phát âm dùng giọng AI thu sẵn (' + SP.audioCount() + ' câu). Chọn Nam – Nữ: người nói chuyện là giọng nam, bạn là giọng nữ. Câu nào chưa có giọng AI thì dùng giọng của máy, chọn bên dưới.</p><div class="row"><select id="vsel" class="sel"></select><button class="btn small" id="vtest">Nghe thử</button></div><p class="muted" style="font-size:.82rem;margin-top:8px">Sumi dùng giọng nữ tiếng Anh rõ nhất có trong máy của bạn. Bạn có thể chọn giọng khác trong danh sách.</p></div>' +
       '<div class="card"><h2>Tốc độ giọng đọc</h2><div class="row" id="rates">' + [[0.8, 'Chậm'], [0.95, 'Vừa'], [1.1, 'Tự nhiên']].map(r => '<button class="chip' + (Math.abs(SP.getRate() - r[0]) < .01 ? ' on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>').join('') + '</div>' +
       '<p class="muted" style="font-size:.82rem;margin-top:12px">' + (window.SECloud && window.SECloud.enabled() ? (window.SECloud.user() ? 'Tiến độ đang được đồng bộ lên tài khoản. <a href="#/account">Xem tài khoản</a>' : 'Tiến độ đang lưu trên máy này. <a href="#/account">Đăng nhập</a> để lưu lên tài khoản và học trên nhiều thiết bị.') : 'Tiến độ được lưu trên trình duyệt của máy này.') + '</p><div class="row" style="margin-top:8px"><button class="btn small ghost" id="reset">Xoá toàn bộ tiến độ</button></div></div>' +
       '<p class="muted" style="text-align:center;font-size:.78rem;margin:18px 0">© 2026 Sumi English · Hiyo © Sumi Kanji · Miễn phí</p></div>';
@@ -596,6 +601,7 @@
         list.map(v => '<option value="' + esc(v.name) + '"' + (SP.getVoice() === v.name ? ' selected' : '') + '>' + esc(v.name) + ' (' + v.lang + (v.g === 'f' ? ', nữ' : v.g === 'm' ? ', nam' : '') + ')</option>').join('');
     };
     fillVoices(); SP.onVoices(fillVoices);
+    bindVoice($('#vmode'));
     $('#vsel').onchange = e => { SP.setVoice(e.target.value); ST.cfg('voice', e.target.value); SP.speak('Hello! This is how I sound.'); };
     $('#vtest').onclick = () => SP.speak('Hello! Nice to meet you. How are you today?');
     $('#reset').onclick = () => { if (confirm('Xoá toàn bộ tiến độ học và câu ôn tập?')) { ST.reset(); toast('Đã xoá tiến độ'); route(); } };
@@ -651,7 +657,10 @@
   // ---------- Khởi động ----------
   if (ST.cfg('rate')) SP.setRate(ST.cfg('rate'));
   if (ST.cfg('voice')) SP.setVoice(ST.cfg('voice'));
+  SP.setGender(ST.cfg('gender') === 'm' || ST.cfg('gender') === 'mix' ? ST.cfg('gender') : 'f');
   window.SEUI = { speakBox, toast, beep, esc, refreshTop, hiyo, voiceChips, bindVoice };
   route();
-  document.addEventListener('touchstart', function once() { try { speechSynthesis.speak(new SpeechSynthesisUtterance('')); } catch (e) { } document.removeEventListener('touchstart', once); }, { passive: true });
+  // Âm báo đúng/sai: mở khoá AudioContext ở lần chạm đầu tiên
+  const unlockAC = () => { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { } };
+  ['pointerdown', 'touchend'].forEach(ev => document.addEventListener(ev, unlockAC, { capture: true, passive: true }));
 })();
