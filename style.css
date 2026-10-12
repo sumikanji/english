@@ -1017,3 +1017,21 @@ body.noscroll { overflow: hidden; }
 .pill.acc.in { width: auto; height: auto; max-width: 150px; padding: 3px 12px 3px 3px; gap: 7px; border-radius: 999px; font-family: inherit; font-weight: 800; font-size: .86rem; color: var(--text, inherit); background: var(--card); border-color: var(--tile); }
 .pill.acc.in i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-family: var(--head); font-weight: 900; background: var(--sky-l); color: var(--sky); }
 .pill.acc.in span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Cài app (PWA) ---------- */
+.pwa-bn { display: flex; align-items: center; gap: 10px; margin: -2px 0 14px; padding: 10px 10px 10px 12px; border-radius: 18px; background: var(--card); border: 1.5px solid var(--line); box-shadow: var(--shadow); }
+.pwa-bn img { width: 40px; height: 40px; border-radius: 11px; flex: none; }
+.pwa-bn > div { flex: 1; min-width: 0; }
+.pwa-bn b { display: block; font-size: .92rem; line-height: 1.25; }
+.pwa-bn small { display: block; font-size: .78rem; color: var(--sub); }
+.pwa-bn .btn { flex: none; min-height: 38px; padding: 8px 14px; }
+.pwa-x { flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; background: none; color: var(--sub); font-size: 1.3rem; line-height: 1; }
+.pwa-ov { position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, .45); display: flex; align-items: flex-end; justify-content: center; padding: 16px; animation: pwaFade .2s ease; }
+@media (min-width: 600px) { .pwa-ov { align-items: center; } }
+.pwa-box { width: 100%; max-width: 420px; background: var(--card); border-radius: 22px; padding: 20px 20px 18px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, .3); animation: pwaUp .25s ease; }
+.pwa-ic img { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 6px 16px rgba(0, 0, 0, .15); }
+.pwa-box h3 { font-size: 1.2rem; margin: 10px 0 4px; }
+.pwa-box p { font-size: .88rem; }
+.pwa-box ol { text-align: left; margin: 14px 0 16px 22px; display: grid; gap: 8px; font-size: .95rem; }
+@keyframes pwaFade { from { opacity: 0; } }
+@keyframes pwaUp { from { transform: translateY(30px); opacity: 0; } }
