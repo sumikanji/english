@@ -33,19 +33,6 @@ LƯU TIẾN ĐỘ
   Muốn đăng nhập (Google / Email) và đồng bộ giữa các máy: xem HUONG-DAN-DANG-NHAP.md,
   điền cấu hình Firebase vào firebase-config.js (có thể dùng chung dự án với Sumi Kanji).
 
-TỪ VỰNG THEO CHỦ ĐỀ (tab "Từ vựng")
-  24 chủ đề, 558 mục, mỗi từ có nghĩa + câu ví dụ + nghĩa câu ví dụ:
-  bảng chữ cái, chữ số, ngày-tháng-giờ, màu sắc, động vật, côn trùng & sinh vật biển, cây cối & hoa,
-  xe cộ, nhà bếp, phòng tắm, đồ đạc trong nhà, trái cây, rau củ, đồ ăn & đồ uống, quần áo, cơ thể,
-  gia đình, nghề nghiệp, trường học, địa điểm, thời tiết & thiên nhiên, cảm xúc, tính từ trái nghĩa,
-  động từ hằng ngày.
-  Bài luyện (10 câu mỗi lượt, lưu điểm cao nhất):
-    Bảng chữ cái: nghe tên đoán chữ cái · nghe đánh vần rồi viết từ
-    Chữ số: nghe số gõ chữ số · nhìn số đọc to (chấm phát âm)
-    Ngày giờ: nghe giờ chọn đồng hồ · nghe ngày tháng · nghe chọn nghĩa · nói từ
-    Các chủ đề khác: nghe chọn nghĩa · nghe và viết từ · nhìn nghĩa nói từ (chấm phát âm)
-  Thêm chủ đề: mở data/vocab-2.js, chép một khối VT(...) và sửa (từ|nghĩa|câu ví dụ|nghĩa câu).
-
 SHADOWING · TỰ KỂ CHUYỆN (tab "Shadowing")
   72 đoạn văn ngắn kể ở ngôi "tôi", 12 đoạn mỗi cấp A1 → C2: giới thiệu bản thân, gia đình,
   nhà và khu mình sống, một ngày của tôi, công việc, quê hương, chuyến đi, Tết, sống ở nước ngoài…
@@ -88,7 +75,6 @@ GIỌNG ĐỌC
 CẤU TRÚC
   index.html, style.css, app.js     – giao diện và các màn hình
   speech.js                         – giọng đọc (nữ) + chấm phát âm (so khớp từng từ)
-  vocab.js, data/vocab-1.js, vocab-2.js – mục Từ vựng theo chủ đề
   store.js                          – tiến độ, chuỗi ngày, XP, ôn tập ngắt quãng
   firebase-config.js, cloud.js      – đăng nhập và đồng bộ tiến độ qua Firebase (tuỳ chọn)
   hiyo.js                           – linh vật Hiyo (lớn dần theo số bài đã học)
