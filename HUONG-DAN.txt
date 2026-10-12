@@ -58,12 +58,7 @@ SHADOWING · TỰ KỂ CHUYỆN (tab "Shadowing")
   Thêm đoạn mới: mở data/shadow-1.js (A1–A2), shadow-2.js (B1–B2) hoặc shadow-3.js (C1–C2),
     chép một khối SH(...) và sửa (mỗi dòng: câu tiếng Anh|nghĩa tiếng Việt).
 
-LUYỆN THÊM (trang chủ → "Luyện thêm")
-  Hỏi – đáp phản xạ: 60 câu hỏi về bản thân (10 câu mỗi cấp A1 → C2). Nghe câu hỏi, bấm Trả lời và nói
-    tự do; máy ghi lại lời bạn, đếm số từ, gợi ý nói dài hơn; xem câu trả lời mẫu có giọng AI.
-    Thêm câu hỏi: data/qa.js (mỗi dòng: câu hỏi|nghĩa|câu trả lời mẫu|nghĩa).
-  Mẫu câu: 49 cấu trúc, tự nhận diện trong câu của bài; mỗi bài hiện tối đa 3 mẫu mới ở bước Nghe.
-    Sửa / thêm mẫu: data/grammar.js.
+GHI ÂM VÀ GÓP Ý
   Ghi âm để so: dưới mọi ô luyện nói có nút "Ghi âm giọng bạn". Ghi xong bấm So sánh để nghe
     giọng mẫu, ngay sau đó là giọng mình.
   Góp ý: phần bình luận nằm cuối bước Nghe của mỗi bài và cuối mỗi đoạn Shadowing. Chọn câu, loại góp ý
@@ -99,7 +94,7 @@ CẤU TRÚC
   data/a1-1.js … c2-3.js            – các bài hội thoại
   data/stats.js                     – số từ vựng mỗi cấp
   shadow.js, data/shadow-1..3.js    – mục Shadowing (đoạn văn tự kể chuyện)
-  extra.js, data/qa.js, grammar.js  – hỏi – đáp, mẫu câu, ghi âm so sánh, góp ý
+  extra.js, icons.js               – ghi âm so sánh, góp ý dạng bình luận, bộ icon SVG
 
 THÊM BÀI MỚI
   Mở một file data/<cấp>-<số>.js, chép một khối L(...) và sửa:
