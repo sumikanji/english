@@ -810,7 +810,7 @@
     bindVoice($('#vmode'));
     $('#vsel').onchange = e => { SP.setVoice(e.target.value); ST.cfg('voice', e.target.value); SP.speak('Hello! This is how I sound.'); };
     $('#vtest').onclick = () => SP.speak('Hello! Nice to meet you. How are you today?');
-    $('#reset').onclick = () => { if (confirm('Xoá toàn bộ tiến độ học và câu ôn tập?')) { const t = ST.cfg('theme'), am = ST.cfg('avMe'), at = ST.cfg('avThem'); ST.reset(); if (t) ST.cfg('theme', t); if (am) ST.cfg('avMe', am); if (at) ST.cfg('avThem', at); toast('Đã xoá tiến độ'); route(); } };
+    $('#reset').onclick = () => { if (confirm('Xoá toàn bộ tiến độ học và câu ôn tập?')) { const t = ST.cfg('theme'), am = ST.cfg('avMe'), at = ST.cfg('avThem'); ST.reset(); ST.get().resetAt = Date.now(); ST.save(); if (t) ST.cfg('theme', t); if (am) ST.cfg('avMe', am); if (at) ST.cfg('avThem', at); toast('Đã xoá tiến độ'); if (window.SECloud && window.SECloud.user && window.SECloud.user()) window.SECloud.syncNow(); route(); } };
   }
 
 
