@@ -1307,7 +1307,7 @@ body.bars-hide .tabs { transform: translateY(calc(100% + 40px)); }
 .l1chat .msg .bub { flex: 1; max-width: none; width: 100%; padding: 12px 16px; border-radius: 18px; }
 .l1chat .bub .en { font-size: 1.16rem; line-height: 1.45; }
 .l1chat .bub .vi { font-size: .92rem; }
-.l1chat .bub.speaking { box-shadow: 0 0 0 2px var(--tk); }
+.l1chat .bub.speaking { border-color: #f59e0b !important; box-shadow: 0 0 0 2px #f59e0b; }
 .pbar-play.on { background: var(--bad); color: #fff; }
 .l1chat .msg .bub { max-width: 100% !important; flex: 1 1 auto; }
 .l1chat .msg { max-width: 100% !important; }
